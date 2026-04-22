@@ -54,8 +54,58 @@ Class {
 	#superclass : 'Object',
 	#instVars : [
 		'roots',
-		'size'
+		'size',
+		'array'
 	],
 	#category : 'Containers-PersistentArray',
 	#package : 'Containers-PersistentArray'
 }
+
+{ #category : 'instance creation' }
+CTPersistentArray >> buildFrom: aCollection [
+	| initialArray |
+	initialArray := aCollection asArray. 
+	
+	size := initialArray size.
+	roots := OrderedCollection new.
+	
+	"Start the recursion from index 1 to the end"
+	roots add: (self buildTreeFrom: initialArray left: 1 right: size).
+]
+
+{ #category : 'private' }
+CTPersistentArray >> buildTreeFrom: anArray left: leftIndex right: rightIndex [
+	| mid leftNode rightNode parentNode |
+	
+	leftIndex > rightIndex ifTrue: [ ^ nil ].
+	
+	"Base case: return a Leaf Node"
+	leftIndex = rightIndex ifTrue: [ 
+		^ CTPersistentLeafNode new 
+			value: (anArray at: leftIndex);
+			yourself ].
+			
+	"Recursive case: split and build an Internal Node"
+	mid := (leftIndex + rightIndex) // 2.
+	
+	leftNode := self buildTreeFrom: anArray left: leftIndex right: mid.
+	rightNode := self buildTreeFrom: anArray left: mid + 1 right: rightIndex.
+	
+	parentNode := CTPersistentInternalNode new.
+	parentNode leftChild: leftNode.
+	parentNode rightChild: rightNode.
+	
+	^ parentNode
+]
+
+{ #category : 'accessing' }
+CTPersistentArray >> latestVersion [
+	"Return the index of the last root in our history"
+	^ roots size - 1
+]
+
+{ #category : 'accessing' }
+CTPersistentArray >> size [
+	"Return the number of elements in the array"
+	^ size
+]
