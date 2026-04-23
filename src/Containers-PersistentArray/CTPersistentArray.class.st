@@ -71,6 +71,16 @@ CTPersistentArray >> = anObject [
 	^ true
 ]
 
+{ #category : 'enumerating' }
+CTPersistentArray >> anySatisfy: aBlock [
+	"return true if aBlock evaluates to true for any of my elements"
+	| found |
+	found := true.
+	self do: [ :each | 
+		(aBlock value: each) ifTrue: [ ^ found ] ].
+	^ false
+]
+
 { #category : 'converting' }
 CTPersistentArray >> asArray [
 	"Default to convert the latest version"
@@ -163,6 +173,14 @@ CTPersistentArray >> checkIndex: anIndex [
 		ifFalse: [ SubscriptOutOfBounds signalFor: anIndex ]
 ]
 
+{ #category : 'enumerating' }
+CTPersistentArray >> collect: aBlock [
+	"Evaluate aBlock with each of my elements,
+	Collect the resulting values into a standard Array"
+	^ Array streamContents: [ :stream |
+		self do: [ :each | stream nextPut: (aBlock value: each) ] ]
+]
+
 { #category : 'copying' }
 CTPersistentArray >> copy [
 	"Persistent structures are immutable and structurally shared. 
@@ -224,6 +242,15 @@ CTPersistentArray >> printOn: aStream [
 	aStream nextPutAll: ' ('.
 	self do: [ :each | aStream print: each; space ].
 	aStream nextPut: $)
+]
+
+{ #category : 'enumerating' }
+CTPersistentArray >> select: aBlock [
+	"Evaluate aBlock with each of my elements,
+	Return a collection of those elements that satisfy the block"
+	^ Array streamContents: [ :stream |
+		self do: [ :each |
+			(aBlock value: each) ifTrue: [ stream nextPut: each ] ] ]
 ]
 
 { #category : 'accessing' }
