@@ -61,6 +61,16 @@ Class {
 	#package : 'Containers-PersistentArray'
 }
 
+{ #category : 'comparing' }
+CTPersistentArray >> = anObject [
+	self == anObject ifTrue: [ ^ true ].
+	self class == anObject class ifFalse: [ ^ false ].
+	self size == anObject size ifFalse: [ ^ false ].
+	
+	self with: anObject do: [ :a :b | a = b ifFalse: [ ^ false ] ].
+	^ true
+]
+
 { #category : 'converting' }
 CTPersistentArray >> asArray [
 	"Default to convert the latest version"
@@ -181,6 +191,19 @@ CTPersistentArray >> first [
 	^ self at: firstIndex
 ]
 
+{ #category : 'comparing' }
+CTPersistentArray >> hash [
+	| hash |
+	"Start with a base hash from the class and size"
+	hash := self class hash bitXor: self size hash.
+	
+	"Incorporate every element so that changing a value changes the hash"
+	self do: [ :each | 
+		hash := (hash + each hash) hashMultiply ].
+		
+	^ hash
+]
+
 { #category : 'accessing' }
 CTPersistentArray >> last [
 	"Return the last element of the latest version."
@@ -207,4 +230,11 @@ CTPersistentArray >> printOn: aStream [
 CTPersistentArray >> size [
 	"Return the number of elements in the array"
 	^ size
+]
+
+{ #category : 'enumerating' }
+CTPersistentArray >> with: aCollection do: aBlock [
+	"Iterate over both collections simultaneously"
+	1 to: self size do: [ :index |
+		aBlock value: (self at: index) value: (aCollection at: index) ]
 ]

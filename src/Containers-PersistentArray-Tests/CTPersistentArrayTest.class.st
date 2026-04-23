@@ -99,6 +99,41 @@ CTPersistentArrayTest >> testDo [
 ]
 
 { #category : 'tests' }
+CTPersistentArrayTest >> testEquality [
+	| array2 |
+	array buildFrom: #(10 20 30).
+	
+	array2 := CTPersistentArray new.
+	array2 buildFrom: #(10 20 30).
+	
+	"check they represent the same data"
+	self assert: array equals: array2.
+	
+	"check they are NOT the same in memory"
+	self deny: array identicalTo: array2.
+	
+	"change one and check they are no longer equal"
+	array at: 1 put: 99.
+	self deny: array equals: array2.
+]
+
+{ #category : 'tests' }
+CTPersistentArrayTest >> testHash [
+	| array2 |
+	array buildFrom: #(10 20 30).
+	
+	array2 := CTPersistentArray new.
+	array2 buildFrom: #(10 20 30).
+	
+	"check hashes are equal for equal objects"
+	self assert: array hash equals: array2 hash.
+	
+	"check hashes are different after an update"
+	array at: 1 put: 99.
+	self deny: array hash equals: array2 hash.
+]
+
+{ #category : 'tests' }
 CTPersistentArrayTest >> testOutOfBounds [
 	| data |
 	data := #(10 20 30).
