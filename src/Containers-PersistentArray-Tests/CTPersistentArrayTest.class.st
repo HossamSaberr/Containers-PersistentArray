@@ -15,6 +15,16 @@ CTPersistentArrayTest >> setUp [
 ]
 
 { #category : 'tests' }
+CTPersistentArrayTest >> testAnySatisfy [
+	| data |
+	data := #(10 20 30).
+	array buildFrom: data.
+	
+	self assert: (array anySatisfy: [ :each | each > 25 ]).
+	self deny: (array anySatisfy: [ :each | each > 100 ]).
+]
+
+{ #category : 'tests' }
 CTPersistentArrayTest >> testAsArray [
 	| data |
 	data := #(1 2 3).
@@ -64,6 +74,18 @@ CTPersistentArrayTest >> testBuildFrom [
 	
 	self assert: array size equals: 5.
 	self assert: array latestVersion equals: 0.
+]
+
+{ #category : 'tests' }
+CTPersistentArrayTest >> testCollect [
+	| data result |
+	data := #(1 2 3).
+	array buildFrom: data.
+	
+	result := array collect: [ :each | each * 10 ].
+	
+	self assert: result equals: #(10 20 30).
+	self assert: result class equals: Array.
 ]
 
 { #category : 'tests' }
@@ -134,6 +156,21 @@ CTPersistentArrayTest >> testHash [
 ]
 
 { #category : 'tests' }
+CTPersistentArrayTest >> testMultipleUpdatesSameIndex [
+	array buildFrom: #(10).
+	
+	array at: 1 put: 20. "Version 1"
+	array at: 1 put: 30. "Version 2"
+	array at: 1 put: 40. "Version 3"
+	
+	self assert: array latestVersion equals: 3.
+	self assert: (array at: 1 version: 0) equals: 10.
+	self assert: (array at: 1 version: 1) equals: 20.
+	self assert: (array at: 1 version: 2) equals: 30.
+	self assert: (array at: 1 version: 3) equals: 40.
+]
+
+{ #category : 'tests' }
 CTPersistentArrayTest >> testOutOfBounds [
 	| data |
 	data := #(10 20 30).
@@ -165,4 +202,46 @@ CTPersistentArrayTest >> testPathCopyingUpdate [
 	
 	"Verify other elements in Version 1 share the old structure"
 	self assert: (array at: 4 version: 1) equals: 40.
+]
+
+{ #category : 'tests' }
+CTPersistentArrayTest >> testSelect [
+	| data result |
+	data := #(1 2 3 4 5 6).
+	array buildFrom: data.
+	
+	result := array select: [ :each | each even ].
+	
+	self assert: result equals: #(2 4 6).
+]
+
+{ #category : 'tests' }
+CTPersistentArrayTest >> testSmallArray [
+	| data |
+	data := #(99).
+	array buildFrom: data.
+	
+	self assert: array size equals: 1.
+	self assert: array first equals: 99.
+	
+	array at: 1 put: 100.
+	self assert: (array at: 1 version: 0) equals: 99.
+	self assert: (array at: 1 version: 1) equals: 100.
+]
+
+{ #category : 'tests' }
+CTPersistentArrayTest >> testStructuralSharingIdentity [
+	| root0 root1 |
+	array buildFrom: #(10 20 30 40).
+	root0 := array roots first. "The Version 0 root"
+	
+	"Update index 1 (Left branch)"
+	array at: 1 put: 99.
+	root1 := array roots last. "The Version 1 root"
+	
+	"The right branch of Version 0 and Version 1 should be the same object"
+	self assert: root0 rightChild identicalTo: root1 rightChild.
+	
+	"The left branch should be a different because it was cloned"
+	self deny: root0 leftChild identicalTo: root1 leftChild.
 ]

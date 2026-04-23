@@ -244,6 +244,11 @@ CTPersistentArray >> printOn: aStream [
 	aStream nextPut: $)
 ]
 
+{ #category : 'accessing' }
+CTPersistentArray >> roots [
+	^ roots
+]
+
 { #category : 'enumerating' }
 CTPersistentArray >> select: aBlock [
 	"Evaluate aBlock with each of my elements,

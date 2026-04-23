@@ -50,8 +50,18 @@ CTPersistentInternalNode >> do: aBlock [
 ]
 
 { #category : 'accessing' }
+CTPersistentInternalNode >> leftChild [
+	^ leftChild
+]
+
+{ #category : 'accessing' }
 CTPersistentInternalNode >> leftChild: aNode [
 	leftChild := aNode
+]
+
+{ #category : 'accessing' }
+CTPersistentInternalNode >> rightChild [
+	^ rightChild
 ]
 
 { #category : 'accessing' }
