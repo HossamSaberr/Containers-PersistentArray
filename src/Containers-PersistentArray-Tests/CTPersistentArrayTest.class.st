@@ -15,6 +15,22 @@ CTPersistentArrayTest >> setUp [
 ]
 
 { #category : 'tests' }
+CTPersistentArrayTest >> testAsArray [
+	| data |
+	data := #(1 2 3).
+	array buildFrom: data.
+	
+	"Create Version 1"
+	array at: 2 put: 99.
+	
+	"Verify Version 0 converted correctly"
+	self assert: (array asArrayVersion: 0) equals: #(1 2 3).
+	
+	"Verify default convert the latest version"
+	self assert: array asArray equals: #(1 99 3).
+]
+
+{ #category : 'tests' }
 CTPersistentArrayTest >> testAt [
 	| data |
 	data := #(10 20 30).
@@ -80,6 +96,20 @@ CTPersistentArrayTest >> testDo [
 	collected := Array streamContents: [ :stream | 
 		array do: [ :each | stream nextPut: each ] version: 0 ].
 	self assert: collected equals: #(1 2 3 4).
+]
+
+{ #category : 'tests' }
+CTPersistentArrayTest >> testOutOfBounds [
+	| data |
+	data := #(10 20 30).
+	array buildFrom: data.
+	
+	"reading out of bounds"
+	self should: [ array at: 4 ] raise: SubscriptOutOfBounds.
+	self should: [ array at: 0 ] raise: SubscriptOutOfBounds.
+	
+	"writing out of bounds"
+	self should: [ array at: 5 put: 99 ] raise: SubscriptOutOfBounds.
 ]
 
 { #category : 'tests' }

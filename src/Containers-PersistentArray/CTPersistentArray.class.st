@@ -61,6 +61,19 @@ Class {
 	#package : 'Containers-PersistentArray'
 }
 
+{ #category : 'converting' }
+CTPersistentArray >> asArray [
+	"Default to convert the latest version"
+	^ self asArrayVersion: self latestVersion
+]
+
+{ #category : 'converting' }
+CTPersistentArray >> asArrayVersion: versionNumber [
+	"convert a historical version into a standard Array"
+	^ Array streamContents: [ :stream | 
+		self do: [ :each | stream nextPut: each ] version: versionNumber ]
+]
+
 { #category : 'accessing' }
 CTPersistentArray >> at: anIndex [
 	"Default to reading from the most recent version"
@@ -70,6 +83,8 @@ CTPersistentArray >> at: anIndex [
 { #category : 'accessing' }
 CTPersistentArray >> at: anIndex put: aValue [
 	| currentRoot newRoot |
+	
+	self checkIndex: anIndex.
 	
 	"Always build off the most recent version"
 	currentRoot := roots last.
@@ -86,6 +101,9 @@ CTPersistentArray >> at: anIndex put: aValue [
 { #category : 'accessing' }
 CTPersistentArray >> at: anIndex version: versionNumber [
 	| root |
+	
+	self checkIndex: anIndex.
+	
 	"In our system, Version 0 is stored at index 1 of the roots collection"
 	root := roots at: versionNumber + 1. 
 	
@@ -129,6 +147,12 @@ CTPersistentArray >> buildTreeFrom: anArray left: leftIndex right: rightIndex [
 	^ parentNode
 ]
 
+{ #category : 'private' }
+CTPersistentArray >> checkIndex: anIndex [
+	(anIndex between: 1 and: size) 
+		ifFalse: [ SubscriptOutOfBounds signalFor: anIndex ]
+]
+
 { #category : 'copying' }
 CTPersistentArray >> copy [
 	"Persistent structures are immutable and structurally shared. 
@@ -169,6 +193,14 @@ CTPersistentArray >> last [
 CTPersistentArray >> latestVersion [
 	"Return the index of the last root in our history"
 	^ roots size - 1
+]
+
+{ #category : 'printing' }
+CTPersistentArray >> printOn: aStream [
+	super printOn: aStream.
+	aStream nextPutAll: ' ('.
+	self do: [ :each | aStream print: each; space ].
+	aStream nextPut: $)
 ]
 
 { #category : 'accessing' }
