@@ -51,8 +51,7 @@ Class {
 	#superclass : 'Object',
 	#instVars : [
 		'roots',
-		'size',
-		'array'
+		'size'
 	],
 	#category : 'Containers-PersistentArray',
 	#package : 'Containers-PersistentArray'
