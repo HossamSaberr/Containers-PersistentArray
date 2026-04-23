@@ -18,8 +18,8 @@ A CTPersistentArray manages an ordered sequence of nodes (`CTPersistentArrayNode
 The core public API consists of:
 
 * creation: use `CTPersistentArray class>>#buildFrom:` to instantiate a persistent array from a standard Smalltalk collection.
-* accessing: use `at:version:` to retrieve a value from any arbitrary, historical version of the array by its version identifier.
-* updating: use `at:put:` to generate a new, updated version of the array. The method does *not* modify the receiver but returns the new root version.
+* accessing: use 'at:version:' to retrieve a value from a historical version (starting at 0 for the initial state).
+* updating: use 'at:put:' to generate a new version. This method returns the value added, while the array internally stores the new version.
 
 # Complexity Analysis
 
@@ -35,18 +35,15 @@ The core public API consists of:
 Here is a basic example demonstrating persistence:
 
 ```smalltalk
-""1. Create the initial version from a collection""
-v1 := CTPersistentArray buildFrom: #( 'Apple' 'Banana' 'Cherry' ). 
+""1. Create the initial version (Version 0)""
+arr := CTPersistentArray buildFrom: #( 'Apple' 'Banana' 'Cherry' ). 
 
-""2. Access elements (current latest version)""
-v1 at: 0 version: v1 latestVersion. ""=> 'Apple'""
+""2. Update index 1 (internally creates Version 1)""
+arr at: 1 put: 'Avocado'.
 
-""3. Non-destructive update: create version 2""
-v2 := v1 at: 0 put: 'Avocado'.
-
-""4. Both versions coexist independently""
-v1 at: 0 version: v1 latestVersion. ""=> 'Apple'""
-v2 at: 0 version: v2 latestVersion. ""=> 'Avocado'""
+""3. Both versions exist in the same object""
+arr at: 1 version: 0. ""=> 'Apple'""
+arr at: 1 version: 1. ""=> 'Avocado'""
 ```
 "
 Class {
