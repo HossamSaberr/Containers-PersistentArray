@@ -115,6 +115,24 @@ CTPersistentArray >> at: anIndex put: aValue [
 ]
 
 { #category : 'accessing' }
+CTPersistentArray >> at: anIndex put: aValue version: versionNumber [
+	| targetRoot newRoot |
+	
+	self checkIndex: anIndex.
+	
+	"Fetch the specific historical root to branch from (0-based to 1-based)"
+	targetRoot := roots at: versionNumber + 1.
+	
+	"Tell the root to start the path-copying process"
+	newRoot := targetRoot at: anIndex put: aValue within: (1 to: size).
+	
+	"Save the new root as our latest version"
+	roots add: newRoot.
+	
+	^ aValue
+]
+
+{ #category : 'accessing' }
 CTPersistentArray >> at: anIndex version: versionNumber [
 	| root |
 	

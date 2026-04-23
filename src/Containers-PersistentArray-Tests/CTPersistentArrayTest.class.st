@@ -56,6 +56,25 @@ CTPersistentArrayTest >> testAt [
 ]
 
 { #category : 'tests' }
+CTPersistentArrayTest >> testAtPutVersion [
+	"Test that branching off a specific historical version maintains structural isolation"
+	
+	array buildFrom: #(10 20 30).
+	array at: 2 put: 99.
+	array at: 3 put: 88 version: 0.
+	
+	self assert: array latestVersion equals: 2.
+	
+	"Verify Version 1 is unaffected by the subsequent branch"
+	self assert: (array at: 2 version: 1) equals: 99.
+	self assert: (array at: 3 version: 1) equals: 30.
+	
+	"Verify Version 2 branched correctly from the initial state"
+	self assert: (array at: 2 version: 2) equals: 20.
+	self assert: (array at: 3 version: 2) equals: 88.
+]
+
+{ #category : 'tests' }
 CTPersistentArrayTest >> testAtVersion [
 	| data |
 	data := #(10 20 30 40 50).
