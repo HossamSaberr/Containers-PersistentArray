@@ -62,6 +62,12 @@ Class {
 }
 
 { #category : 'accessing' }
+CTPersistentArray >> at: anIndex [
+	"Default to reading from the most recent version"
+	^ self at: anIndex version: self latestVersion
+]
+
+{ #category : 'accessing' }
 CTPersistentArray >> at: anIndex put: aValue [
 	| currentRoot newRoot |
 	
@@ -121,6 +127,42 @@ CTPersistentArray >> buildTreeFrom: anArray left: leftIndex right: rightIndex [
 	parentNode rightChild: rightNode.
 	
 	^ parentNode
+]
+
+{ #category : 'copying' }
+CTPersistentArray >> copy [
+	"Persistent structures are immutable and structurally shared. 
+	 Copying is simply returning the identical object in O(1) time."
+	^ self
+]
+
+{ #category : 'enumerating' }
+CTPersistentArray >> do: aBlock [
+	"Default iteration over the latest version"
+	self do: aBlock version: self latestVersion
+]
+
+{ #category : 'enumerating' }
+CTPersistentArray >> do: aBlock version: versionNumber [
+	| root |
+	root := roots at: versionNumber + 1.
+	root ifNotNil: [ root do: aBlock ]
+]
+
+{ #category : 'accessing' }
+CTPersistentArray >> first [
+	"Return the first element of the latest version."
+	| firstIndex |
+	firstIndex := 1.
+	^ self at: firstIndex
+]
+
+{ #category : 'accessing' }
+CTPersistentArray >> last [
+	"Return the last element of the latest version."
+	| currentSize |
+	currentSize := self size.
+	^ self at: currentSize
 ]
 
 { #category : 'accessing' }

@@ -15,6 +15,21 @@ CTPersistentArrayTest >> setUp [
 ]
 
 { #category : 'tests' }
+CTPersistentArrayTest >> testAt [
+	| data |
+	data := #(10 20 30).
+	array buildFrom: data.
+	
+	"Update the array to create Version 1"
+	array at: 2 put: 999.
+	
+	"Verify default 'at:' reads from Version 1"
+	self assert: (array at: 2) equals: 999.
+	self assert: array first equals: 10.
+	self assert: array last equals: 30.
+]
+
+{ #category : 'tests' }
 CTPersistentArrayTest >> testAtVersion [
 	| data |
 	data := #(10 20 30 40 50).
@@ -33,6 +48,38 @@ CTPersistentArrayTest >> testBuildFrom [
 	
 	self assert: array size equals: 5.
 	self assert: array latestVersion equals: 0.
+]
+
+{ #category : 'tests' }
+CTPersistentArrayTest >> testCopy [
+	| data copyArray |
+	data := #(10 20 30).
+	array buildFrom: data.
+	
+	copyArray := array copy.
+	
+	"Verify the copy is the exact same instance in memory"
+	self assert: copyArray identicalTo: array.
+]
+
+{ #category : 'tests' }
+CTPersistentArrayTest >> testDo [
+	| data collected |
+	data := #(1 2 3 4).
+	array buildFrom: data.
+	
+	"Update to create Version 1"
+	array at: 3 put: 99.
+	
+	"should read Version 1"
+	collected := Array streamContents: [ :stream | 
+		array do: [ :each | stream nextPut: each ] ].
+	self assert: collected equals: #(1 2 99 4).
+	
+	"should read Version 0"
+	collected := Array streamContents: [ :stream | 
+		array do: [ :each | stream nextPut: each ] version: 0 ].
+	self assert: collected equals: #(1 2 3 4).
 ]
 
 { #category : 'tests' }

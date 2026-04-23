@@ -42,6 +42,13 @@ CTPersistentInternalNode >> at: targetIndex within: aRange [
 		ifFalse: [ rightChild at: targetIndex within: (mid + 1 to: aRange last) ]
 ]
 
+{ #category : 'enumerating' }
+CTPersistentInternalNode >> do: aBlock [
+	"Traverse left, then right. Guard against nil children for non-power-of-2 arrays."
+	leftChild ifNotNil: [ leftChild do: aBlock ].
+	rightChild ifNotNil: [ rightChild do: aBlock ].
+]
+
 { #category : 'accessing' }
 CTPersistentInternalNode >> leftChild: aNode [
 	leftChild := aNode

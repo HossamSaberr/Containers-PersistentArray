@@ -20,3 +20,8 @@ CTPersistentAbstractNode >> at: anIndex within: aRange [
 	"I should return the value at the given index."
 	self subclassResponsibility
 ]
+
+{ #category : 'enumerating' }
+CTPersistentAbstractNode >> do: aBlock [
+	self subclassResponsibility
+]

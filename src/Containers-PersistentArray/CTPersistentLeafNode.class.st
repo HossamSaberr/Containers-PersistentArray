@@ -26,6 +26,11 @@ CTPersistentLeafNode >> at: anIndex within: aRange [
 	^ value
 ]
 
+{ #category : 'enumerating' }
+CTPersistentLeafNode >> do: aBlock [
+	aBlock value: value
+]
+
 { #category : 'accessing' }
 CTPersistentLeafNode >> value: anObject [
 	value := anObject
