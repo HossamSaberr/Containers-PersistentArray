@@ -14,6 +14,35 @@ Class {
 }
 
 { #category : 'accessing' }
+CTPersistentInternalNode >> at: targetIndex put: aValue within: aRange [
+	| mid clone |
+	mid := (aRange first + aRange last) // 2.
+	
+	"Create a new branch node to represent the updated state"
+	clone := self class new.
+	
+	targetIndex <= mid
+		ifTrue: [ 
+			clone leftChild: (leftChild at: targetIndex put: aValue within: (aRange first to: mid)).
+			clone rightChild: rightChild ]
+		ifFalse: [ 
+			clone leftChild: leftChild.
+			clone rightChild: (rightChild at: targetIndex put: aValue within: (mid + 1 to: aRange last)) ].
+			
+	^ clone
+]
+
+{ #category : 'accessing' }
+CTPersistentInternalNode >> at: targetIndex within: aRange [
+	| mid |
+	mid := (aRange first + aRange last) // 2.
+	
+	^ targetIndex <= mid
+		ifTrue: [ leftChild at: targetIndex within: (aRange first to: mid) ]
+		ifFalse: [ rightChild at: targetIndex within: (mid + 1 to: aRange last) ]
+]
+
+{ #category : 'accessing' }
 CTPersistentInternalNode >> leftChild: aNode [
 	leftChild := aNode
 ]

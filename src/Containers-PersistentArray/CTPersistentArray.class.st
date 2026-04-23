@@ -61,6 +61,31 @@ Class {
 	#package : 'Containers-PersistentArray'
 }
 
+{ #category : 'accessing' }
+CTPersistentArray >> at: anIndex put: aValue [
+	| currentRoot newRoot |
+	
+	"Always build off the most recent version"
+	currentRoot := roots last.
+	
+	"Tell the root to start the path-copying process"
+	newRoot := currentRoot at: anIndex put: aValue within: (1 to: size).
+	
+	"Save the new root as our latest version"
+	roots add: newRoot.
+	
+	^ aValue
+]
+
+{ #category : 'accessing' }
+CTPersistentArray >> at: anIndex version: versionNumber [
+	| root |
+	"In our system, Version 0 is stored at index 1 of the roots collection"
+	root := roots at: versionNumber + 1. 
+	
+	^ root at: anIndex within: (1 to: size)
+]
+
 { #category : 'instance creation' }
 CTPersistentArray >> buildFrom: aCollection [
 	| initialArray |
