@@ -12,24 +12,9 @@ Key Workloads:
 - #runNormalSlidingWindowBenchmark: Updates small, localized chunks sequentially before moving to the next chunk (Spatial locality).
 - #runRandomBenchmark: Updates completely random indices to simulate average-case workloads.
 - #runWorstCaseBenchmark: Alternates opposite ends of the tree to force maximum CPU cache misses.
-
-Example Usage with FiLiP (Memory Profiling):
-
-``` smalltalk
-| profiler |
-profiler := FiLiP new.
-profiler samplingRate: 1.
-profiler profileOn: [
-    CTPersistentArrayBenchmark new runLinearBenchmark
-].
-profiler open.
-```
-
-Example Usage with AndreasSystemProfiler (CPU Profiling):
-
-AndreasSystemProfiler spyOn: [
-    CTPersistentArrayBenchmark new runWorstCaseBenchmark
-].
+- #runTraversalForSize:: Measures the time to traverse from the root to specific leaf nodes across the 1 to n range, comparing standard memory access against tree traversal.
+- #runInsertionForSize:: Evaluates the cost of functional updates (path-copying) by measuring execution time and the resulting Garbage Collection (GC) overhead.
+- #runShopInventorySimulation: A real-world simulation proving the utility of persistent arrays by maintaining an immutable audit ledger of 50,000 inventory transactions.
 "
 Class {
 	#name : 'CTPersistentArrayBenchmark',
@@ -75,6 +60,41 @@ CTPersistentArrayBenchmark >> runHighBranchingBenchmark [
         "Always branch from the same base version"
         st at: 50000 put: i version: 1. 
     ].
+]
+
+{ #category : 'benchmarking' }
+CTPersistentArrayBenchmark >> runInsertionForSize: size [
+    | normalArray persistentArray benchmarker resultNormal resultPersistent |
+    
+    "Setup data"
+    normalArray := (1 to: size) asArray.
+    
+    "Initialize the persistent array using your buildFrom: method"
+    persistentArray := CTPersistentArray new.
+    persistentArray buildFrom: normalArray.
+    
+    "Set up benchmarker"
+    benchmarker := PersistentArrayBenchmarker new.
+    
+    "Benchmark Normal Array"
+    benchmarker blockToExcute: [ 
+        1 to: size do: [ :i | normalArray at: i put: i * 2 ] 
+    ].
+    resultNormal := benchmarker benchmark.
+    
+    "Benchmark Persistent Array"
+	benchmarker blockToExcute: [ 
+   	 	1 to: size do: [ :i | 
+        	persistentArray at: i put: i * 2 
+    	] 
+	].
+    resultPersistent := benchmarker benchmark.
+    
+    "Report"
+   Transcript 
+    show: '--- Benchmark (N='; show: size asString; show: ') ---'; cr;
+    show: 'Normal Array -> Time: '; show: resultNormal executionTime asString; show: 'ms | GC: '; show: resultNormal relativeGCTime; cr;
+    show: 'Persistent Array -> Time: '; show: resultPersistent executionTime asString; show: 'ms | GC: '; show: resultPersistent relativeGCTime; cr; cr.
 ]
 
 { #category : 'benchmarks' }
@@ -130,6 +150,39 @@ CTPersistentArrayBenchmark >> runRandomBenchmark [
     ].
 ]
 
+{ #category : 'benchmarking' }
+CTPersistentArrayBenchmark >> runTraversalForSize: size [
+    | normalArray persistentArray benchmarker resultNormal resultPersistent |
+    
+    "Setup data"
+    normalArray := (1 to: size) asArray.
+    
+    "Initialize the persistent array using your buildFrom: method"
+    persistentArray := CTPersistentArray new.
+    persistentArray buildFrom: normalArray.
+    
+    "Set up benchmarker"
+    benchmarker := PersistentArrayBenchmarker new.
+    
+    "Benchmark Normal Array"
+    benchmarker blockToExcute: [ 
+        1 to: size do: [ :i | normalArray at: i ] 
+    ].
+    resultNormal := benchmarker benchmark.
+    
+    "Benchmark Persistent Array"
+    benchmarker blockToExcute: [ 
+        1 to: size do: [ :i | persistentArray at: i ] 
+    ].
+    resultPersistent := benchmarker benchmark.
+    
+    "Report"
+    Transcript 
+    show: '--- Benchmark (N='; show: size asString; show: ') ---'; cr;
+    show: 'Normal Array -> Time: '; show: resultNormal executionTime asString; show: 'ms | GC: '; show: resultNormal relativeGCTime; cr;
+    show: 'Persistent Array -> Time: '; show: resultPersistent executionTime asString; show: 'ms | GC: '; show: resultPersistent relativeGCTime; cr; cr.
+]
+
 { #category : 'benchmarks' }
 CTPersistentArrayBenchmark >> runWorstCaseBenchmark [
     "Alternates opposite ends of the tree to force maximum memory traversal and cache misses"
@@ -141,4 +194,59 @@ CTPersistentArrayBenchmark >> runWorstCaseBenchmark [
         st at: i put: i.
         st at: (size - i + 1) put: i.
     ].
+]
+
+{ #category : 'benchmarking' }
+CTPersistentArrayBenchmark >> runkShopInventorySimulation [
+    | inventorySize transactions normalInventory persistentInventory benchmarker resultNormal resultPersistent |
+    
+    inventorySize := 10000.
+    transactions := 50000.
+    
+    "Setup Initial Stock"
+    normalInventory := Array new: inventorySize withAll: 100.
+    persistentInventory := CTPersistentArray new.
+    persistentInventory buildFrom: normalInventory.
+    
+    benchmarker := PersistentArrayBenchmarker new.
+    
+    "Normal Array Simulation (The old data is destroyed on every sale)"
+    benchmarker blockToExcute: [ 
+        1 to: transactions do: [ :saleIndex | 
+            | itemID currentStock |
+            itemID := (saleIndex \\ inventorySize) + 1. 
+            currentStock := normalInventory at: itemID.
+            normalInventory at: itemID put: currentStock - 1
+        ] 
+    ].
+    resultNormal := benchmarker benchmark.
+    
+   "Persistent Array Simulation (Building the immutable tree)"
+    benchmarker blockToExcute: [ 
+        1 to: transactions do: [ :saleIndex | 
+            | itemID currentStock |
+            itemID := (saleIndex \\ inventorySize) + 1.
+            currentStock := persistentInventory at: itemID.
+            
+            "The update automatically creates the new tree version internally"
+            persistentInventory at: itemID put: currentStock - 1.
+        ] 
+    ].
+    resultPersistent := benchmarker benchmark.
+    
+    "Report Results"
+    Transcript 
+        show: '--- Shop Simulation (10k Items, 50k Sales) ---'; cr;
+        show: 'Normal Array -> Time: '; show: resultNormal executionTime asString; show: 'ms | GC: '; show: resultNormal relativeGCTime; cr;
+        show: 'Persistent Array -> Time: '; show: resultPersistent executionTime asString; show: 'ms | GC: '; show: resultPersistent relativeGCTime; cr; cr.
+	 "Prove the Time Travel"
+    Transcript 
+        show: '--- Audit Trail for Item 42 ---'; cr;
+        show: 'Stock before sales (Version 0): '; 
+        show: (persistentInventory at: 42 version: 0) asString; cr;
+        
+        show: 'Stock after sales (Version '; 
+        show: persistentInventory latestVersion asString; 
+        show: '): '; 
+        show: (persistentInventory at: 42) asString; cr; cr.
 ]
