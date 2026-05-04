@@ -24,12 +24,13 @@ PersistentArrayBenchmarker >> benchmark [
 	| executionTime fullGCTime incrementalGCTime |
 	fullGCTime := Smalltalk vm totalFullGCTime.
 	incrementalGCTime := Smalltalk vm totalIncrementalGCTime.
-	executionTime := Time millisecondClockValue.
+	executionTime := Time primUTCMicrosecondsClock.
 
 	block value.
 
-	executionTime := Time millisecondClockValue - executionTime.
-	fullGCTime := Smalltalk vm totalFullGCTime - fullGCTime.
+	executionTime := Time primUTCMicrosecondsClock - executionTime.
+	"Multiply by 1000 to convert millisecond GC time into microseconds"
+	fullGCTime := (Smalltalk vm totalFullGCTime - fullGCTime) * 1000.
 	incrementalGCTime := Smalltalk vm totalIncrementalGCTime - incrementalGCTime.
 
 	^ PersistentArrayBenchmarkerResult new

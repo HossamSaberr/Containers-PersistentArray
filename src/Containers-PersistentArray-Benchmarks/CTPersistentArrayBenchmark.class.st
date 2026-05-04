@@ -151,53 +151,7 @@ CTPersistentArrayBenchmark >> runRandomBenchmark [
 ]
 
 { #category : 'benchmarking' }
-CTPersistentArrayBenchmark >> runTraversalForSize: size [
-    | normalArray persistentArray benchmarker resultNormal resultPersistent |
-    
-    "Setup data"
-    normalArray := (1 to: size) asArray.
-    
-    "Initialize the persistent array using your buildFrom: method"
-    persistentArray := CTPersistentArray new.
-    persistentArray buildFrom: normalArray.
-    
-    "Set up benchmarker"
-    benchmarker := PersistentArrayBenchmarker new.
-    
-    "Benchmark Normal Array"
-    benchmarker blockToExcute: [ 
-        1 to: size do: [ :i | normalArray at: i ] 
-    ].
-    resultNormal := benchmarker benchmark.
-    
-    "Benchmark Persistent Array"
-    benchmarker blockToExcute: [ 
-        1 to: size do: [ :i | persistentArray at: i ] 
-    ].
-    resultPersistent := benchmarker benchmark.
-    
-    "Report"
-    Transcript 
-    show: '--- Benchmark (N='; show: size asString; show: ') ---'; cr;
-    show: 'Normal Array -> Time: '; show: resultNormal executionTime asString; show: 'ms | GC: '; show: resultNormal relativeGCTime; cr;
-    show: 'Persistent Array -> Time: '; show: resultPersistent executionTime asString; show: 'ms | GC: '; show: resultPersistent relativeGCTime; cr; cr.
-]
-
-{ #category : 'benchmarks' }
-CTPersistentArrayBenchmark >> runWorstCaseBenchmark [
-    "Alternates opposite ends of the tree to force maximum memory traversal and cache misses"
-    | st size |
-    size := 100000.
-    st := CTPersistentArray new buildFrom: (Array new: size withAll: 0).
-    
-    1 to: 5000 do: [ :i |
-        st at: i put: i.
-        st at: (size - i + 1) put: i.
-    ].
-]
-
-{ #category : 'benchmarking' }
-CTPersistentArrayBenchmark >> runkShopInventorySimulation [
+CTPersistentArrayBenchmark >> runShopInventorySimulation [
     | inventorySize transactions normalInventory persistentInventory benchmarker resultNormal resultPersistent |
     
     inventorySize := 10000.
@@ -249,4 +203,50 @@ CTPersistentArrayBenchmark >> runkShopInventorySimulation [
         show: persistentInventory latestVersion asString; 
         show: '): '; 
         show: (persistentInventory at: 42) asString; cr; cr.
+]
+
+{ #category : 'benchmarking' }
+CTPersistentArrayBenchmark >> runTraversalForSize: size [
+    | normalArray persistentArray benchmarker resultNormal resultPersistent |
+    
+    "Setup data"
+    normalArray := (1 to: size) asArray.
+    
+    "Initialize the persistent array using your buildFrom: method"
+    persistentArray := CTPersistentArray new.
+    persistentArray buildFrom: normalArray.
+    
+    "Set up benchmarker"
+    benchmarker := PersistentArrayBenchmarker new.
+    
+    "Benchmark Normal Array"
+    benchmarker blockToExcute: [ 
+        1 to: size do: [ :i | normalArray at: i ] 
+    ].
+    resultNormal := benchmarker benchmark.
+    
+    "Benchmark Persistent Array"
+    benchmarker blockToExcute: [ 
+        1 to: size do: [ :i | persistentArray at: i ] 
+    ].
+    resultPersistent := benchmarker benchmark.
+    
+    "Report"
+    Transcript 
+    show: '--- Benchmark (N='; show: size asString; show: ') ---'; cr;
+    show: 'Normal Array -> Time: '; show: resultNormal executionTime asString; show: 'ms | GC: '; show: resultNormal relativeGCTime; cr;
+    show: 'Persistent Array -> Time: '; show: resultPersistent executionTime asString; show: 'ms | GC: '; show: resultPersistent relativeGCTime; cr; cr.
+]
+
+{ #category : 'benchmarks' }
+CTPersistentArrayBenchmark >> runWorstCaseBenchmark [
+    "Alternates opposite ends of the tree to force maximum memory traversal and cache misses"
+    | st size |
+    size := 100000.
+    st := CTPersistentArray new buildFrom: (Array new: size withAll: 0).
+    
+    1 to: 5000 do: [ :i |
+        st at: i put: i.
+        st at: (size - i + 1) put: i.
+    ].
 ]
