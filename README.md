@@ -142,27 +142,27 @@ arr2 at: 512. "=> 'final'"
 
 ## Performance & Empirical Proof
 
-To bypass the biases and observer effects inherent in sampling-based profilers (where the act of recording execution changes the results) this implementation utilizes a custom isolation benchmarker. By using a high-precision microsecond clock and directly querying VM parameters, we capture the true execution time alongside full and incremental Garbage Collection overhead.
+To bypass the biases and observer effects inherent in sampling-based profilers (where the act of recording execution changes the results), this implementation utilizes a custom isolation benchmarker. By using a high-precision microsecond clock and directly querying VM parameters, we capture the true execution time alongside full and incremental Garbage Collection overhead.
 
 ### Benchmark Results (Execution Time & GC Overhead)
 
 | Operation | Scale / Workload | Normal Array | Persistent Array (With History) | Relative Overhead |
 | :--- | :--- | :--- | :--- | :--- |
-| **Traversal (Read)** | N = 1,000 | 14 µs (0.00% GC) | 422 µs (0.00% GC) | **~30x slower** |
-| | N = 10,000 | 27 µs (0.00% GC) | 6,741 µs (0.00% GC) | **~250x slower** |
-| | N = 100,000 | 319 µs (0.00% GC) | 131,539 µs (0.03% GC) | **~412x slower** |
-| | N = 1,000,000 | 4,237 µs (0.00% GC) | 1,197,736 µs (0.01% GC) | **~283x slower** |
-| **Insertion (Write)** | N = 1,000 | 10 µs (0.00% GC) | 565 µs (0.00% GC) | **~57x slower** |
-| | N = 10,000 | 42 µs (0.00% GC) | 17,354 µs (0.03% GC) | **~413x slower** |
-| | N = 100,000 | 430 µs (0.00% GC) | 298,154 µs (0.06% GC) | **~693x slower** |
-| | N = 1,000,000 | 4,234 µs (0.00% GC) | 4,560,045 µs (38.12% GC) | **~1,077x slower** |
-| **Real Life Simulation** | 10k items / 50k trans. | 416 µs (0.00% GC) | 140,070 µs (0.03% GC) | **~337x slower** |
+| **Traversal (Read)** | $N = 1,000$ | 14 µs (0.00% GC) | 410 µs (0.00% GC) | **~29x slower** |
+| | $N = 10,000$ | 32 µs (0.00% GC) | 7,184 µs (0.00% GC) | **~224x slower** |
+| | $N = 100,000$ | 318 µs (0.00% GC) | 110,872 µs (9.92% GC) | **~349x slower** |
+| | $N = 1,000,000$ | 2,964 µs (0.00% GC) | 1,197,892 µs (8.19% GC) | **~404x slower** |
+| **Insertion (Write)** | $N = 1,000$ | 10 µs (0.00% GC) | 576 µs (0.00% GC) | **~58x slower** |
+| | $N = 10,000$ | 44 µs (0.00% GC) | 14,443 µs (20.77% GC) | **~328x slower** |
+| | $N = 100,000$ | 391 µs (0.00% GC) | 354,802 µs (65.13% GC) | **~907x slower** |
+| | $N = 1,000,000$ | 4,159 µs (0.00% GC) | 4,441,238 µs (69.37% GC) | **~1,068x slower** |
+| **Real Life Simulation** | 10k items / 50k trans. | 419 µs (0.00% GC) | 128,041 µs (47.64% GC) | **~306x slower** |
 
 ### Technical Analysis
 
 *   **Complexity Verification**: Results verify strict $O(\log N)$ complexity for both traversal and insertion operations.
-*   **Path-Copying Signature**: The significantly higher relative GC percentages (exceeding 20%) in write-heavy workloads are the definitive empirical signature of the path-copying algorithm.
-*   **Memory Overhead**: The 38.12% GC rate for 1,000,000 updates reflects the VM's intensive effort to reclaim short-lived internal nodes generated to preserve immutability.
+*   **Path-Copying Signature**: The significantly higher relative GC percentages (reaching 69.37%) in write-heavy workloads are the definitive empirical signature of the path-copying algorithm.
+*   **Memory Overhead**: The **69.37% GC rate** for 1,000,000 updates reflects the VM's intensive effort to reclaim short-lived internal nodes generated to preserve immutability.
 *   **Audit Capability**: The **Real Life Simulation** proves the primary value proposition. While a **Normal Array** is destructive and maintains no time-travel history, the persistent implementation allows for instantaneous access to any historical state (e.g., Version 0 vs. Version 50,000) with no manual bookkeeping.
 
 ---
