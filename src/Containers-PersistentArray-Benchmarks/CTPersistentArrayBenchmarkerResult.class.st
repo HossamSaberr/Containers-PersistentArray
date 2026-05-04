@@ -11,7 +11,7 @@ For persistent data structures, this highlights the exact overhead cost of path-
 If memory issues are identified here, a dedicated memory profiler should be used subsequently to pinpoint the exact node allocations.
 "
 Class {
-	#name : 'PersistentArrayBenchmarkerResult',
+	#name : 'CTPersistentArrayBenchmarkerResult',
 	#superclass : 'Object',
 	#instVars : [
 		'executionTime',
@@ -23,41 +23,41 @@ Class {
 }
 
 { #category : 'accessing' }
-PersistentArrayBenchmarkerResult >> executionTime [
+CTPersistentArrayBenchmarkerResult >> executionTime [
     ^ executionTime
 ]
 
 { #category : 'as yet unclassified' }
-PersistentArrayBenchmarkerResult >> executionTime: anInteger [
+CTPersistentArrayBenchmarkerResult >> executionTime: anInteger [
 
 	executionTime := anInteger
 ]
 
 { #category : 'accessing' }
-PersistentArrayBenchmarkerResult >> fullGCTime [
+CTPersistentArrayBenchmarkerResult >> fullGCTime [
     ^ fullGCTime
 ]
 
 { #category : 'as yet unclassified' }
-PersistentArrayBenchmarkerResult >> fullGCTime: anInteger [
+CTPersistentArrayBenchmarkerResult >> fullGCTime: anInteger [
 
 	fullGCTime := anInteger
 ]
 
 { #category : 'accessing' }
-PersistentArrayBenchmarkerResult >> incrementalGCTime [
+CTPersistentArrayBenchmarkerResult >> incrementalGCTime [
     ^ incrementalGCTime
 ]
 
 { #category : 'as yet unclassified' }
-PersistentArrayBenchmarkerResult >> incrementalGCTime: anInteger [
+CTPersistentArrayBenchmarkerResult >> incrementalGCTime: anInteger [
 
 	incrementalGCTime := anInteger
 ]
 
 { #category : 'accessing' }
-PersistentArrayBenchmarkerResult >> relativeGCTime [
-    "Prevent ZeroDivide if the code executes in under 1 millisecond"
+CTPersistentArrayBenchmarkerResult >> relativeGCTime [
+    "Prevent ZeroDivide if the code executes in under 1 microsecond"
     executionTime = 0 ifTrue: [ ^ '0.00 %' ].
     
     ^ ((fullGCTime + incrementalGCTime / executionTime * 100) asFloat

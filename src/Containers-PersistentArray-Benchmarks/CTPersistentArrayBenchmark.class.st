@@ -74,7 +74,7 @@ CTPersistentArrayBenchmark >> runInsertionForSize: size [
     persistentArray buildFrom: normalArray.
     
     "Set up benchmarker"
-    benchmarker := PersistentArrayBenchmarker new.
+    benchmarker := CTPersistentArrayBenchmarker new.
     
     "Benchmark Normal Array"
     benchmarker blockToExcute: [ 
@@ -93,8 +93,8 @@ CTPersistentArrayBenchmark >> runInsertionForSize: size [
     "Report"
    Transcript 
     show: '--- Benchmark (N='; show: size asString; show: ') ---'; cr;
-    show: 'Normal Array -> Time: '; show: resultNormal executionTime asString; show: 'ms | GC: '; show: resultNormal relativeGCTime; cr;
-    show: 'Persistent Array -> Time: '; show: resultPersistent executionTime asString; show: 'ms | GC: '; show: resultPersistent relativeGCTime; cr; cr.
+    show: 'Normal Array -> Time: '; show: resultNormal executionTime asString; show: 'µs | GC: '; show: resultNormal relativeGCTime; cr;
+    show: 'Persistent Array -> Time: '; show: resultPersistent executionTime asString; show: 'µs | GC: '; show: resultPersistent relativeGCTime; cr; cr.
 ]
 
 { #category : 'benchmarks' }
@@ -162,7 +162,7 @@ CTPersistentArrayBenchmark >> runShopInventorySimulation [
     persistentInventory := CTPersistentArray new.
     persistentInventory buildFrom: normalInventory.
     
-    benchmarker := PersistentArrayBenchmarker new.
+    benchmarker := CTPersistentArrayBenchmarker new.
     
     "Normal Array Simulation (The old data is destroyed on every sale)"
     benchmarker blockToExcute: [ 
@@ -191,8 +191,8 @@ CTPersistentArrayBenchmark >> runShopInventorySimulation [
     "Report Results"
     Transcript 
         show: '--- Shop Simulation (10k Items, 50k Sales) ---'; cr;
-        show: 'Normal Array -> Time: '; show: resultNormal executionTime asString; show: 'ms | GC: '; show: resultNormal relativeGCTime; cr;
-        show: 'Persistent Array -> Time: '; show: resultPersistent executionTime asString; show: 'ms | GC: '; show: resultPersistent relativeGCTime; cr; cr.
+        show: 'Normal Array -> Time: '; show: resultNormal executionTime asString; show: 'µs | GC: '; show: resultNormal relativeGCTime; cr;
+        show: 'Persistent Array -> Time: '; show: resultPersistent executionTime asString; show: 'µs | GC: '; show: resultPersistent relativeGCTime; cr; cr.
 	 "Prove the Time Travel"
     Transcript 
         show: '--- Audit Trail for Item 42 ---'; cr;
@@ -217,7 +217,7 @@ CTPersistentArrayBenchmark >> runTraversalForSize: size [
     persistentArray buildFrom: normalArray.
     
     "Set up benchmarker"
-    benchmarker := PersistentArrayBenchmarker new.
+    benchmarker := CTPersistentArrayBenchmarker new.
     
     "Benchmark Normal Array"
     benchmarker blockToExcute: [ 
@@ -234,8 +234,8 @@ CTPersistentArrayBenchmark >> runTraversalForSize: size [
     "Report"
     Transcript 
     show: '--- Benchmark (N='; show: size asString; show: ') ---'; cr;
-    show: 'Normal Array -> Time: '; show: resultNormal executionTime asString; show: 'ms | GC: '; show: resultNormal relativeGCTime; cr;
-    show: 'Persistent Array -> Time: '; show: resultPersistent executionTime asString; show: 'ms | GC: '; show: resultPersistent relativeGCTime; cr; cr.
+    show: 'Normal Array -> Time: '; show: resultNormal executionTime asString; show: 'µs | GC: '; show: resultNormal relativeGCTime; cr;
+    show: 'Persistent Array -> Time: '; show: resultPersistent executionTime asString; show: 'µs | GC: '; show: resultPersistent relativeGCTime; cr; cr.
 ]
 
 { #category : 'benchmarks' }

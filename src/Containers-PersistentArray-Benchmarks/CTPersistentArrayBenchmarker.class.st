@@ -9,7 +9,7 @@ I simultaneously track VM parameters to capture both full GC time (large generat
 Upon completion, I return a `PersistentArrayBenchmarkerResult` containing the gathered metrics.
 "
 Class {
-	#name : 'PersistentArrayBenchmarker',
+	#name : 'CTPersistentArrayBenchmarker',
 	#superclass : 'Object',
 	#instVars : [
 		'block'
@@ -19,7 +19,7 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
-PersistentArrayBenchmarker >> benchmark [
+CTPersistentArrayBenchmarker >> benchmark [
 
 	| executionTime fullGCTime incrementalGCTime |
 	fullGCTime := Smalltalk vm totalFullGCTime.
@@ -31,9 +31,9 @@ PersistentArrayBenchmarker >> benchmark [
 	executionTime := Time primUTCMicrosecondsClock - executionTime.
 	"Multiply by 1000 to convert millisecond GC time into microseconds"
 	fullGCTime := (Smalltalk vm totalFullGCTime - fullGCTime) * 1000.
-	incrementalGCTime := Smalltalk vm totalIncrementalGCTime - incrementalGCTime.
+	incrementalGCTime := (Smalltalk vm totalIncrementalGCTime - incrementalGCTime) * 1000.
 
-	^ PersistentArrayBenchmarkerResult new
+	^ CTPersistentArrayBenchmarkerResult new
 		  executionTime: executionTime;
 		  fullGCTime: fullGCTime;
 		  incrementalGCTime: incrementalGCTime;
@@ -41,7 +41,7 @@ PersistentArrayBenchmarker >> benchmark [
 ]
 
 { #category : 'as yet unclassified' }
-PersistentArrayBenchmarker >> blockToExcute: aBlock [
+CTPersistentArrayBenchmarker >> blockToExcute: aBlock [
 
 	block := aBlock
 ]
